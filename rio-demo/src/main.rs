@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 const CHUNK_SIZE: u64 = 4096 * 256;
 
 #[repr(align(4096))]
@@ -8,7 +10,7 @@ async fn main() -> anyhow::Result<()> {
     let mut config = rio::Config::default();
     config.print_profile_on_drop = true;
     let ring = config.start().expect("create uring");
-
+    
     // open output file, with `O_DIRECT` set
     let file = std::fs::OpenOptions::new()
         .read(true)
