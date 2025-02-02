@@ -1,7 +1,7 @@
 use std::{
     collections::HashMap,
     fmt::Debug,
-    hash::Hash,
+    hash::{DefaultHasher, Hash, Hasher},
     mem::MaybeUninit,
     sync::{
         atomic::{AtomicUsize, Ordering},
@@ -55,7 +55,7 @@ impl<K> Hash for KeyRef<K>
 where
     K: Hash,
 {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+    fn hash<H: Hasher>(&self, state: &mut H) {
         unsafe {
             (*self.k).hash(state);
         }
@@ -269,6 +269,61 @@ impl<K, V> Drop for LruCacheInner<K, V> {
             drop(Box::from_raw(self.head));
             drop(Box::from_raw(self.tail));
         }
+    }
+}
+
+pub struct SharededLruCache<K, V> {
+    caches: Arc<Vec<LruCache<K, V>>>,
+}
+
+impl<K, V> SharededLruCache<K, V>
+where
+    K: Send + Sync + Hash + Eq,
+    V: Send + Sync,
+    // H: Hasher + Default,
+{
+    fn shared_hash(&self, hash: usize) -> usize {
+        hash % self.caches.len()
+    }
+
+    fn get_cache(&self, key: &K) -> &LruCache<K, V> {
+        let mut hasher = DefaultHasher::default();
+        key.hash(&mut hasher);
+        let index = self.shared_hash(hasher.finish() as usize);
+        &self.caches[index]
+    }
+
+    pub fn new(len: usize, per_cap: usize) -> Self {
+        let mut caches = Vec::with_capacity(len);
+        for _ in 0..len {
+            caches.push(LruCache::new(per_cap));
+        }
+        Self {
+            caches: Arc::new(caches),
+        }
+    }
+}
+
+impl<K, V> Cache<K, V> for SharededLruCache<K, V>
+where
+    K: Send + Sync + Hash + Eq,
+    V: Send + Sync,
+    // H: Hasher + Default + Send + Sync,
+{
+    fn insert(&self, key: K, value: V, charge: usize) -> Option<V> {
+        self.get_cache(&key).insert(key, value, charge)
+    }
+
+    fn get(&self, key: &K) -> Option<&V> {
+        self.get_cache(key).get(key)
+    }
+
+    fn erase(&self, key: &K) -> Option<V> {
+        self.get_cache(key).erase(key)
+    }
+
+    fn total_charge(&self) -> usize {
+        self.caches.iter().map(|c| c.total_charge()).sum()
     }
 }
 
