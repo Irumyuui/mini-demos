@@ -120,7 +120,7 @@ impl Transaction {
         self.put(key, b"")
     }
 
-    pub fn commit(&self) -> Result<()> {
+    pub fn commit(self: Arc<Self>) -> Result<()> {
         self.committed
             .compare_exchange(
                 false,
@@ -131,13 +131,14 @@ impl Transaction {
             .map_err(|_| anyhow::anyhow!("Transaction already committed"))?;
 
         let _commit_lock = self.db.mvcc().comit_lock.lock().unwrap();
-        self.db.write_batch_inner(
+        let ts = self.db.write_batch_inner(
             self.local_data
                 .read()
                 .unwrap()
                 .iter()
                 .map(|(k, v)| (k.as_ref(), v.as_ref())),
         )?;
+        println!("[Info] Commit ts: {}", ts);
         Ok(())
     }
 }
@@ -317,6 +318,10 @@ fn main() -> anyhow::Result<()> {
     let txn = db.new_txn();
     db.put(b"key1", b"value1")?;
     assert_eq!(None, txn.get(b"key1").unwrap());
+    assert_eq!(
+        Some(Bytes::from_static(b"value1")),
+        db.get(b"key1").unwrap()
+    );
 
     txn.put(b"key1", b"value2")?;
     assert_eq!(
