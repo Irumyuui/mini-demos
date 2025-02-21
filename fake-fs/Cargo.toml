@@ -1,0 +1,8 @@
+[package]
+name = "fake-fs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.96"
+fs2 = "0.4.3"
