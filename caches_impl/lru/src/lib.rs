@@ -9,10 +9,10 @@ use std::{
     },
 };
 
-pub trait Cache<K, V>: Sync + Send
+pub trait Cache<K, V>: Send + Sync
 where
-    K: Sync + Send,
-    V: Sync + Send,
+    K: Send + Sync,
+    V: Send + Sync,
 {
     fn insert(&self, key: K, value: V, charge: usize) -> Option<V>;
 
@@ -118,14 +118,11 @@ impl<K, V> LruCacheInner<K, V> {
             let next = (*node).next;
             (*prev).next = next;
             (*next).prev = prev;
-            // (*node).prev = std::ptr::null_mut();
-            // (*node).next = std::ptr::null_mut();
         }
     }
 
     fn push_node(&mut self, node: *mut LruEntry<K, V>) {
         unsafe {
-            // head and tail is not null.
             let head = self.head;
             let next = (*head).next;
             (*node).prev = head;
@@ -280,7 +277,6 @@ impl<K, V> SharededLruCache<K, V>
 where
     K: Send + Sync + Hash + Eq,
     V: Send + Sync,
-    // H: Hasher + Default,
 {
     fn shared_hash(&self, hash: usize) -> usize {
         hash % self.caches.len()
@@ -308,7 +304,6 @@ impl<K, V> Cache<K, V> for SharededLruCache<K, V>
 where
     K: Send + Sync + Hash + Eq,
     V: Send + Sync,
-    // H: Hasher + Default + Send + Sync,
 {
     fn insert(&self, key: K, value: V, charge: usize) -> Option<V> {
         self.get_cache(&key).insert(key, value, charge)
