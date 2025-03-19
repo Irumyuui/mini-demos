@@ -1,0 +1,9 @@
+[package]
+name = "async-rt"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+pin-project = "1.1.10"
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
