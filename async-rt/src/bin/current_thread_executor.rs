@@ -52,10 +52,10 @@ impl Executor {
     }
 
     pub fn run(&self) {
-        let waker = self.create_waker();
-        let mut context = Context::from_waker(&waker);
-
         while let Some(mut task) = { self.queue.lock().unwrap().pop_front() } {
+            let waker = self.create_waker();
+            let mut context = Context::from_waker(&waker);
+
             match task.as_mut().poll(&mut context) {
                 Poll::Ready(_) => println!("task finished"),
                 Poll::Pending => {
