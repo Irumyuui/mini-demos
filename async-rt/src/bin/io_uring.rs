@@ -12,6 +12,7 @@ use std::{
 use io_uring::{IoUring, opcode, types};
 use itertools::Itertools;
 use pin_project::pin_project;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 struct IoOpenration {
     waker: Option<Waker>,
@@ -57,7 +58,6 @@ impl IoUringRuntime {
         unsafe {
             self.ring.submission().push(&read_op).expect("full queue"); // entires limit
         }
-        self.ring.submit().expect("submit failed");
 
         ReadFuture {
             token,
@@ -67,9 +67,11 @@ impl IoUringRuntime {
 
     fn process_complections(&mut self) {
         match self.ring.submit_and_wait(1) {
-            Ok(_) => {}
+            Ok(n) => {
+                tracing::info!("read {} completions", n);
+            }
             Err(e) => {
-                eprintln!("Error waiting for completions: {}", e);
+                tracing::error!("submit_and_wait failed: {:?}", e);
             }
         }
 
@@ -121,6 +123,14 @@ struct AlignedBuffer([u8; CHUNK_SIZE]);
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::fmt::layer()
+                .with_thread_ids(true)
+                .with_line_number(true),
+        )
+        .init();
+
     let mut ring = IoUringRuntime::new(4096)?;
 
     let file = OpenOptions::new()
