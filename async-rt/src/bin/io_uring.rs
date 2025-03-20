@@ -1,7 +1,10 @@
 use std::{
     collections::HashMap,
     fs::OpenOptions,
-    os::fd::{AsRawFd, RawFd},
+    os::{
+        fd::{AsRawFd, RawFd},
+        unix::fs::OpenOptionsExt,
+    },
     pin::Pin,
     task::{Context, Poll, Waker},
 };
@@ -24,7 +27,9 @@ pub struct IoUringRuntime {
 
 impl IoUringRuntime {
     pub fn new(entries: u32) -> anyhow::Result<Self> {
-        let ring = IoUring::new(entries)?;
+        let ring = IoUring::builder().setup_iopoll().build(entries)?;
+
+        // let ring = IoUring::new(entries)?;
 
         Ok(Self {
             ring,
@@ -61,6 +66,13 @@ impl IoUringRuntime {
     }
 
     fn process_complections(&mut self) {
+        match self.ring.submit_and_wait(1) {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!("Error waiting for completions: {}", e);
+            }
+        }
+
         let cqes = self.ring.completion().collect_vec();
         for cqe in cqes {
             let token = cqe.user_data();
@@ -115,7 +127,7 @@ async fn main() -> anyhow::Result<()> {
         .read(true)
         .write(false)
         .create(false)
-        // .custom_flags(nix::libc::O_DIRECT)
+        .custom_flags(nix::libc::O_DIRECT)
         .open("Cargo.toml")?;
 
     let mut read_buf = Box::new(AlignedBuffer([0; CHUNK_SIZE]));
