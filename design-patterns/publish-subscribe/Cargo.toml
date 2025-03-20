@@ -1,0 +1,10 @@
+[package]
+name = "publish-subscribe"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+anyhow = "1.0.96"
+async-channel = "2.3.1"
+futures = "0.3.31"
+tokio = { version = "1.43.0", features = ["full"] }
