@@ -1,9 +1,0 @@
-[package]
-name = "vlog"
-version = "0.1.0"
-edition = "2024"
-
-[dependencies]
-anyhow = "1.0.95"
-bytes = "1.9.0"
-tempfile = "3.15.0"
