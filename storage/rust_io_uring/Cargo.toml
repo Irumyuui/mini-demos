@@ -4,6 +4,8 @@ name = "rust_io_uring"
 version = "0.1.0"
 
 [dependencies]
+anyhow = "1.0.98"
+clap = { version = "4.5.37", features = ["derive"] }
 io-uring = "0.7.6"
 scopeguard = "1.2.0"
 
