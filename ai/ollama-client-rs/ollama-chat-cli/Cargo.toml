@@ -1,0 +1,10 @@
+[package]
+edition = "2024"
+name = "ollama-chat-cli"
+version = "0.1.0"
+
+[dependencies]
+anyhow.workspace = true
+ollama-rs = { workspace = true, features = ["tokio", "tokio-stream", "stream"] }
+tokio = { workspace = true, features = ["full"] }
+tokio-stream.workspace = true
