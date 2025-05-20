@@ -1,0 +1,49 @@
+[package]
+edition = "2024"
+name = "uring_rt"
+version = "0.1.0"
+
+[dependencies]
+anyhow = "1.0.98"
+async-channel = "2.3.1"
+bytes = "1.10.1"
+cfg-if = "1.0.0"
+clap = {version = "4.5.38", features = ["derive"]}
+crc32fast = "1.4.2"
+criterion = {version = "0.5.1", features = ["html_reports", "csv", "csv_output", "tokio"]}
+derive_more = {version = "2.0.1", features = ["full"]}
+either = "1.15.0"
+fast-async-mutex = "0.6.7"
+futures = "0.3.31"
+indicatif = "0.17.11"
+mimalloc = {version = "0.1.46"}
+nom = "7.1.3"
+parking_lot = "0.12.3"
+pin-project = "1.1.10"
+rand = "0.9.1"
+rustix = "1.0.5"
+rustix-uring = "0.4.0"
+rustyline = "15.0.0"
+scopeguard = "1.2.0"
+serde = {version = "1.0.219", features = ["derive"]}
+static_assertions = "1.1.0"
+tempfile = "3.19.1"
+test-case = "3.3.1"
+thiserror = "2.0.12"
+tokio = {version = "1.44.2", features = ["full"]}
+toml = "0.8.22"
+tracing = "0.1.41"
+tracing-subscriber = {version = "0.3.19", features = ["fmt", "std"]}
+xxhash-rust = {version = "0.8.15", features = ["xxh3"]}
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[workspace]
+members = [
+  "others",
+]
+
+[[bench]]
+harness = false
+name = "read"

@@ -1,0 +1,17 @@
+[package]
+edition = "2024"
+name = "others"
+version = "0.1.0"
+
+[dependencies]
+anyhow = "1.0.98"
+clap = {version = "4.5.38", features = ["derive"]}
+io-uring = "0.7.6"
+scopeguard = "1.2.0"
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[[bench]]
+harness = false
+name = "io_uring_multi_read"
