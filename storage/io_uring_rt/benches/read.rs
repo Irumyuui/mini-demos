@@ -31,7 +31,7 @@ fn bench_block_read(c: &mut Criterion) {
     c.bench_function("block-read", |b| {
         b.iter(|| {
             let mut file = std::fs::File::open(path.clone()).unwrap();
-            let mut read_buf = vec![0u8; 4 * 1024 * 1024]; // 4MB
+            let mut read_buf = vec![0u8; 4 * 1024 * 1024]; // 4B
             let _ = file.read_exact(&mut read_buf);
         });
     });
