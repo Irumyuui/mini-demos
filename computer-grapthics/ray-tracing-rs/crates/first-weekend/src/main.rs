@@ -1,4 +1,7 @@
 use indicatif::{ProgressBar, ProgressStyle};
+use vec3::{Color, Wrapper};
+
+pub mod vec3;
 
 fn main() {
     let width = 256;
@@ -18,15 +21,12 @@ fn main() {
 
     for j in 0..height {
         for i in 0..width {
-            let r = i as f64 / (width - 1) as f64;
-            let g = j as f64 / (height - 1) as f64;
+            let r = i as f32 / (width - 1) as f32;
+            let g = j as f32 / (height - 1) as f32;
             let b = 0.;
 
-            let ir = (255.99 * r) as i32;
-            let ig = (255.99 * g) as i32;
-            let ib = (255.99 * b) as i32;
-
-            println!("{} {} {}", ir, ig, ib);
+            let c = Color::new(r, g, b);
+            println!("{}", Wrapper::new(&c));
         }
         pb.inc(1);
     }
