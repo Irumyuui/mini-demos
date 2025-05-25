@@ -1,6 +1,7 @@
 use indicatif::{ProgressBar, ProgressStyle};
 use vec3::{Color, Wrapper};
 
+pub mod ray;
 pub mod vec3;
 
 fn main() {
