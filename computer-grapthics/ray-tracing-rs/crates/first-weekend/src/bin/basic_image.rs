@@ -1,8 +1,5 @@
+use first_weekend::vec3::{Color, Wrapper};
 use indicatif::{ProgressBar, ProgressStyle};
-use vec3::{Color, Wrapper};
-
-pub mod ray;
-pub mod vec3;
 
 fn main() {
     let width = 256;
