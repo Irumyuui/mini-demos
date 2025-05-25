@@ -1,3 +1,5 @@
+use indicatif::{ProgressBar, ProgressStyle};
+
 fn main() {
     let width = 256;
     let height = 256;
@@ -6,8 +8,16 @@ fn main() {
     println!("{} {}", width, height);
     println!("255");
 
-    for i in 0..width {
-        for j in 0..height {
+    let pb = ProgressBar::new(height as u64);
+    pb.set_style(
+        ProgressStyle::default_bar()
+            .template("{spinner:.green} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len}")
+            .unwrap()
+            .progress_chars("#>-"),
+    );
+
+    for j in 0..height {
+        for i in 0..width {
             let r = i as f64 / (width - 1) as f64;
             let g = j as f64 / (height - 1) as f64;
             let b = 0.;
@@ -18,5 +28,8 @@ fn main() {
 
             println!("{} {} {}", ir, ig, ib);
         }
+        pb.inc(1);
     }
+
+    pb.finish_with_message("Image done");
 }
